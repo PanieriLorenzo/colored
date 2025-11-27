@@ -335,6 +335,10 @@ impl Style {
         CLEAR
     }
 
+    pub(crate) const fn const_eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+
     /// Check if the current style has one of [`Styles`](Styles) switched on.
     ///
     /// ```rust
