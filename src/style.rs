@@ -221,7 +221,7 @@ impl Styles {
         }
     }
 
-    fn to_u8(self) -> u8 {
+    const fn to_u8(self) -> u8 {
         match self {
             Self::Clear => CLEARV,
             Self::Bold => BOLD,
@@ -242,7 +242,7 @@ impl Styles {
 
         let res: Vec<Self> = STYLES
             .iter()
-            .filter(|&(mask, _)| (0 != (u & mask)))
+            .filter(|&(mask, _)| 0 != (u & mask))
             .map(|&(_, value)| value)
             .collect();
         if res.is_empty() {
@@ -330,6 +330,11 @@ impl Not for &Styles {
 }
 
 impl Style {
+    /// Creates a new empty style with no styles applied
+    pub const fn new() -> Self {
+        CLEAR
+    }
+
     /// Check if the current style has one of [`Styles`](Styles) switched on.
     ///
     /// ```rust
@@ -368,7 +373,7 @@ impl Style {
     /// assert!(cstr2.style.contains(Styles::Italic));
     /// assert_eq!(cstr2.fgcolor, Some(Color::Blue));
     /// ```
-    pub fn add(&mut self, two: Styles) {
+    pub const fn add(&mut self, two: Styles) {
         self.0 |= two.to_u8();
     }
 
@@ -391,56 +396,56 @@ impl Style {
 
     /// Makes this `Style` include Bold.
     #[must_use]
-    pub fn bold(mut self) -> Self {
+    pub const fn bold(mut self) -> Self {
         self.add(Styles::Bold);
         self
     }
 
     /// Makes this `Style` include Dimmed.
     #[must_use]
-    pub fn dimmed(mut self) -> Self {
+    pub const fn dimmed(mut self) -> Self {
         self.add(Styles::Dimmed);
         self
     }
 
     /// Makes this `Style` include Underline.
     #[must_use]
-    pub fn underline(mut self) -> Self {
+    pub const fn underline(mut self) -> Self {
         self.add(Styles::Underline);
         self
     }
 
     /// Makes this `Style` include Reversed.
     #[must_use]
-    pub fn reversed(mut self) -> Self {
+    pub const fn reversed(mut self) -> Self {
         self.add(Styles::Reversed);
         self
     }
 
     /// Makes this `Style` include Italic.
     #[must_use]
-    pub fn italic(mut self) -> Self {
+    pub const fn italic(mut self) -> Self {
         self.add(Styles::Italic);
         self
     }
 
     /// Makes this `Style` include Blink.
     #[must_use]
-    pub fn blink(mut self) -> Self {
+    pub const fn blink(mut self) -> Self {
         self.add(Styles::Blink);
         self
     }
 
     /// Makes this `Style` include Hidden.
     #[must_use]
-    pub fn hidden(mut self) -> Self {
+    pub const fn hidden(mut self) -> Self {
         self.add(Styles::Hidden);
         self
     }
 
     /// Makes this `Style` include Strikethrough.
     #[must_use]
-    pub fn strikethrough(mut self) -> Self {
+    pub const fn strikethrough(mut self) -> Self {
         self.add(Styles::Strikethrough);
         self
     }
@@ -536,7 +541,7 @@ impl_assign_op_trait!(BitXorAssign, bitxor_assign for Style, Styles, using BitXo
 
 impl Default for Style {
     fn default() -> Self {
-        CLEAR
+        Self::new()
     }
 }
 
@@ -567,8 +572,7 @@ mod tests {
     use super::*;
 
     mod u8_to_styles_invalid_is_none {
-        use super::super::Styles;
-        use super::super::CLEARV;
+        use super::super::{Styles, CLEARV};
 
         #[test]
         fn empty_is_none() {
@@ -577,9 +581,8 @@ mod tests {
     }
 
     mod u8_to_styles_isomorphism {
-        use super::super::Styles;
         use super::super::{
-            BLINK, BOLD, DIMMED, HIDDEN, ITALIC, REVERSED, STRIKETHROUGH, UNDERLINE,
+            Styles, BLINK, BOLD, DIMMED, HIDDEN, ITALIC, REVERSED, STRIKETHROUGH, UNDERLINE,
         };
 
         macro_rules! value_isomorph {
@@ -619,8 +622,7 @@ mod tests {
     }
 
     mod styles_combine_complex {
-        use super::super::Styles::*;
-        use super::super::{Style, Styles};
+        use super::super::{Style, Styles, Styles::*};
 
         fn style_from_multiples(styles: &[Styles]) -> Style {
             let mut res = Style(styles[0].to_u8());

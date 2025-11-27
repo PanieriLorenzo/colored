@@ -33,6 +33,7 @@
 extern crate rspec;
 
 mod color;
+mod colored_str;
 pub mod control;
 mod error;
 mod style;
@@ -42,8 +43,6 @@ pub use self::customcolors::CustomColor;
 /// Custom colors support.
 pub mod customcolors;
 
-pub use color::*;
-
 use std::{
     borrow::Cow,
     error::Error,
@@ -51,6 +50,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+pub use color::*;
 pub use style::{Style, Styles};
 
 /// A string that may have color and/or style applied to it.
@@ -750,8 +750,9 @@ impl From<ColoredString> for Box<dyn Error> {
 
 #[cfg(test)]
 mod tests {
+    use std::{error::Error, fmt::Write, str::FromStr};
+
     use super::*;
-    use std::{error::Error, fmt::Write};
 
     #[test]
     fn formatting() {
